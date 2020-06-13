@@ -5,7 +5,7 @@ from pyglet.sprite import Sprite
 from pyglet.window import key
 from time import time
 
-from Alien import Alien
+from Alien import Alien, Swarm
 
 gameWindow = pyglet.window.Window(800, 600, fullscreen=False)
 
@@ -42,7 +42,6 @@ def update(dt):
         alien.setAcceleartion((0,0))
 
     alien.update(dt, cameraOffset)
-    alien.angularVelocity = 0
     pass
 
 @gameWindow.event
@@ -82,13 +81,20 @@ if __name__ == '__main__':
     gameWindow.set_size(screenWidth, screenHeight)
     gameWindow.set_fullscreen(fullscreen=True, screen=screens[0])
 
+    # Create a "camera" offset, allowing for easy panning around the world
     cameraOffset = np.array((0, 0), dtype=np.float32)
 
+    # Keep track of mouse and keyboard states
     mouseLocation = (0, 0)
     mouseState = {pyglet.window.mouse.LEFT: False,
                   pyglet.window.mouse.MIDDLE: False,
                   pyglet.window.mouse.RIGHT: False}
 
+    keyboard = key.KeyStateHandler()
+    oldKeyboard = key.KeyStateHandler()
+    gameWindow.push_handlers(keyboard)
+
+    # Load in the resources
     loadResources()
 
     alienBatch = pyglet.graphics.Batch()
@@ -96,6 +102,9 @@ if __name__ == '__main__':
     shieldGroup = pyglet.graphics.OrderedGroup(20)
 
     alien = Alien(alienShipTexture, alienShieldTexture,
+                  alienBatch, shipGroup, shieldGroup, x=screenWidth / 2, y=screenHeight/2)
+
+    swarm0 = Swarm(5, alienShipTexture, alienShieldTexture,
                   alienBatch, shipGroup, shieldGroup, x=screenWidth / 2, y=screenHeight/2)
 
     pyglet.clock.schedule_interval(update, 1/60.0)

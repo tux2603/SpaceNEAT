@@ -15,6 +15,8 @@ class Alien:
         self.angularVelocity = 0
         self.angularPosition = 0
 
+        self.ship.scale = 0.8
+
 
     def getShieldCenter(self): 
         accelLen = np.linalg.norm(self.acceleration)
@@ -43,5 +45,13 @@ class Alien:
         self.shield.position = self.getShieldCenter() - cameraOffset
         
 
+class Swarm:
+    def __init__(self, size, shipTexture, shieldTexture, alienBatch, shipGroup, shieldGroup, x=0, y=0):
+        self.members = []
 
+        for i in range(size):
+            self.members.append(Alien(shipTexture, shieldTexture, alienBatch, shipGroup, shieldGroup, x=x, y=y))
 
+    def update(self, dt, cameraOffset):
+        for i in self.members:
+            i.update(dt, cameraOffset)
