@@ -1,3 +1,4 @@
+from math import atan2, pi
 import numpy as np
 from pyglet.sprite import Sprite
 
@@ -10,10 +11,6 @@ class Alien:
         self.acceleration = np.array((0, 0), dtype=np.float32)
         self.velocity = np.array((0, 0), dtype=np.float32)
         self.position = np.array((x, y), dtype=np.float32)
-
-        self.angularAcceleration = 0
-        self.angularVelocity = 0
-        self.angularPosition = 0
 
         self.ship.scale = 0.8
 
@@ -36,10 +33,7 @@ class Alien:
         self.velocity += self.acceleration * dt
         self.position += self.velocity * dt 
 
-        self.angularVelocity += self.angularAcceleration * dt
-        self.angularPosition += self.angularVelocity * dt
-
-        self.ship.rotation = self.angularPosition
+        self.ship.rotation = atan2(-self.velocity[1], self.velocity[0]) * 180 / pi #self.angularPosition
 
     def setCameraPosition(self, cameraOffset):
         self.ship.position = self.position - cameraOffset
