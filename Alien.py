@@ -78,3 +78,15 @@ class SwarmIterator:
             self._index += 1
             return alien
         raise StopIteration
+
+class MotherShip:
+    """ The mothership class will handle the neat algorithm, using it to
+        (hopefully) generate better and better swarms. Swarms will be
+        generated in waves, each wave corresponding to another generation of
+        the neural nets. In order to prevent the user having to slog through
+        20 some odd waves before there's evena  kinda useful opponent, there 
+        will be some pregenerated genomes used as a starting point (hopefully)
+    """
+
+    
+    pass
