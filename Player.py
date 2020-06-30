@@ -12,6 +12,7 @@ class Player:
         self.acceleration = np.array((0, 0), dtype=np.float32)
         self.velocity = np.array((0, 0), dtype=np.float32)
         self.position = np.array((x, y), dtype=np.float32)
+        self.maxSpeed = 500
 
     def setAcceleartion(self, acceleration):
         self.acceleration = np.array(acceleration, dtype=np.float32)
@@ -25,6 +26,9 @@ class Player:
         """
 
         self.velocity += self.acceleration * dt
+
+        if np.linalg.norm(self.velocity) > self.maxSpeed:
+            self.velocity *= self.maxSpeed / np.linalg.norm(self.velocity)
         self.position += self.velocity * dt 
 
 

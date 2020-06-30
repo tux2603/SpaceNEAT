@@ -36,7 +36,7 @@ def loadResources():
     playerShipTexture.anchor_y = playerShipTexture.height / 2
 
 def update(dt):
-    global cameraOffset, rotationalSens, forwardAccel
+    global cameraOffset, rotationalSens, forwardAccel, reverseAccel, orthAccel
 
     if keyboard[key.A]:
         player.ship.rotation -= rotationalSens / dt
@@ -45,9 +45,15 @@ def update(dt):
         player.ship.rotation += rotationalSens / dt
 
     if keyboard[key.W]:
-        player.velocity= np.array((forwardAccel * cos(player.ship.rotation / pi * 180), -forwardAccel * sin(player.ship.rotation / pi * 180)), dtype=np.float32)
+        player.setAcceleartion((forwardAccel * cos(player.ship.rotation * pi / 180), -forwardAccel * sin(player.ship.rotation * pi / 180)))
+    elif keyboard[key.S]:
+        player.setAcceleartion((reverseAccel * cos(player.ship.rotation * pi / 180), -reverseAccel * sin(player.ship.rotation * pi / 180)))
+    elif keyboard[key.Q]:
+        player.setAcceleartion((orthAccel * sin(player.ship.rotation * pi / 180), orthAccel * cos(player.ship.rotation * pi / 180)))
+    elif keyboard[key.E]:
+        player.setAcceleartion((-orthAccel * sin(player.ship.rotation * pi / 180), -orthAccel * cos(player.ship.rotation * pi / 180)))  
     else:
-        player.velocity= np.array((0,0), dtype=np.float32)
+        player.setAcceleartion((0,0))
 
     player.update(dt)
     for i in swarm1:
@@ -142,7 +148,9 @@ if __name__ == '__main__':
     player = Player(playerShipColored, alienShieldTexture, alienBatch, shipGroup, shieldGroup, x=screenWidth / 2, y=screenHeight/2)
     player.velocity = np.array((100,0), dtype=np.float32)
     rotationalSens = 0.05
-    forwardAccel = 200
+    forwardAccel = 300
+    reverseAccel = -200
+    orthAccel = 150
     
     
     swarm1 = []
