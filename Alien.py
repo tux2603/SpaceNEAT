@@ -1,4 +1,5 @@
 from math import atan2, pi
+import neat
 import numpy as np
 from pyglet.sprite import Sprite
 
@@ -88,5 +89,7 @@ class MotherShip:
         will be some pregenerated genomes used as a starting point (hopefully)
     """
 
-    
+    def __init__(self, configPath):
+        self._config 
+
     pass

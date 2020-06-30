@@ -7,13 +7,14 @@ from random import randint
 from time import time
 
 from Alien import Alien, Swarm
+from Player import Player
 from Utilities import Utils
 
 gameWindow = pyglet.window.Window(800, 600, fullscreen=False)
 
 
 def loadResources():
-    global alienShipTexture, alienShieldTexture
+    global alienShipTexture, alienShieldTexture, playerShipTexture
 
     # Set the locations to find resources
     pyglet.resource.path = ['resources']
@@ -23,32 +24,38 @@ def loadResources():
     alienShipTexture = pyglet.resource.image('images/alienShipBW.png')
     alienShieldTexture = pyglet.resource.image('images/alienShieldBW.png')
 
+    playerShipTexture = pyglet.resource.image('images/playerShip.png')
+
     # Set the anchors for rotation
     alienShipTexture.anchor_x = alienShipTexture.width / 2
     alienShipTexture.anchor_y = alienShipTexture.height / 2
     alienShieldTexture.anchor_x = alienShieldTexture.width / 2
     alienShieldTexture.anchor_y = alienShieldTexture.height / 2
-
-    print(vars(alienShieldTexture))
-    print(vars(alienShipTexture))
+    
+    playerShipTexture.anchor_x = playerShipTexture.width / 2
+    playerShipTexture.anchor_y = playerShipTexture.height / 2
 
 def update(dt):
-    global cameraOffset
+    global cameraOffset, rotationalSens, forwardAccel
 
-    if mouseState[pyglet.window.mouse.LEFT]:
-        alien.setAcceleartion((mouseLocation - alien.getShieldCenter() + cameraOffset))
+    if keyboard[key.A]:
+        player.ship.rotation -= rotationalSens / dt
+
+    if keyboard[key.D]:
+        player.ship.rotation += rotationalSens / dt
+
+    if keyboard[key.W]:
+        player.velocity= np.array((forwardAccel * cos(player.ship.rotation / pi * 180), -forwardAccel * sin(player.ship.rotation / pi * 180)), dtype=np.float32)
     else:
-        alien.setAcceleartion((0,0))
+        player.velocity= np.array((0,0), dtype=np.float32)
 
-    alien.update(dt)
-    swarm0.update(dt)
+    player.update(dt)
     for i in swarm1:
         i.update(dt)
 
-    centerCamera(alien.position)
+    centerCamera(player.position)
 
-    alien.setCameraPosition(cameraOffset)
-    swarm0.setCameraPosition(cameraOffset)
+    player.setCameraPosition(cameraOffset)
     
     for i in swarm1:
         i.setCameraPosition(cameraOffset)
@@ -97,6 +104,7 @@ def on_draw():
 if __name__ == '__main__':
     alienShipTexture = None
     alienShieldTexture = None
+    playerShipTexture = None
     cachedTextures = {}
 
     # Make the windows fullscreen on the first screen found
@@ -129,12 +137,14 @@ if __name__ == '__main__':
     shipGroup = pyglet.graphics.OrderedGroup(10)
     shieldGroup = pyglet.graphics.OrderedGroup(20)
 
-    alien = Alien(alienShipTexture, alienShieldTexture, alienBatch, shipGroup, shieldGroup, x=screenWidth / 2, y=screenHeight/2)
 
-    swarmShip = Utils.colorTexture(alienShipTexture, (255, 0, 255), (0, 0, 255), (255, 0, 0))
-    swarmShield = Utils.colorTexture(alienShieldTexture, (255, 0, 255), (0, 0, 255), (255, 0, 0))
-    swarm0 = Swarm(0, swarmShip, swarmShield, alienBatch, shipGroup, shieldGroup, x=screenWidth / 2, y=screenHeight/2)
-
+    playerShipColored = Utils.colorTexture(playerShipTexture, (120, 120, 120), (40, 40, 200), (255, 128, 0))
+    player = Player(playerShipColored, alienShieldTexture, alienBatch, shipGroup, shieldGroup, x=screenWidth / 2, y=screenHeight/2)
+    player.velocity = np.array((100,0), dtype=np.float32)
+    rotationalSens = 0.05
+    forwardAccel = 200
+    
+    
     swarm1 = []
 
     for i in range(32):
@@ -148,10 +158,6 @@ if __name__ == '__main__':
     # Create the FPS monitor
     fpsDisplay = pyglet.window.FPSDisplay(window=gameWindow)
     
-
-    for i, ship in enumerate(swarm0):
-        theta = i * 2 * pi / len(swarm0)
-        ship.setAcceleartion((sin(theta), cos(theta)))
 
     for i, ship in enumerate(swarm1):
         theta = (i + 0.5) * 2 * pi / len(swarm1)
