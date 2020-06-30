@@ -4,10 +4,13 @@ import numpy as np
 from pyglet.sprite import Sprite
 
 class Alien:
-    def __init__(self, shipTexture, shieldTexture, alienBatch, shipGroup, shieldGroup, x=0, y=0):
+    def __init__(self, shipTexture, shieldTexture, pointerTexture, alienBatch, shipGroup, shieldGroup, overlayGroup, x=0, y=0):
         self.ship = Sprite(shipTexture, x=x, y=y, blend_src=770, blend_dest=771, batch=alienBatch, group=shipGroup, usage='dynamic', subpixel=False)
         self.shield = Sprite(shieldTexture, x=x, y=y, blend_src=770, blend_dest=771, batch=alienBatch, group=shieldGroup, usage='dynamic', subpixel=False)
         
+        self.pointer = Sprite(pointerTexture, x=x, y=y, blend_src=770, blend_dest=771, batch=alienBatch, group=overlayGroup, usage='dynamic', subpixel=False)
+        self.pointer.visible = False
+
         # Set the physical aspects of the Alien ship
         self.acceleration = np.array((0, 0), dtype=np.float32)
         self.velocity = np.array((0, 0), dtype=np.float32)
@@ -39,8 +42,21 @@ class Alien:
     def setCameraPosition(self, cameraOffset):
         self.ship.position = self.position - cameraOffset
         self.shield.position = self.getShieldCenter() - cameraOffset
-        
-        
+
+    def setPointerPosition(self, playerLocation, screenWidth, screenHeight):
+        shieldCenter = self.getShieldCenter()
+
+        # Check to see if the alien ship is "on screen"
+        if shieldCenter[0] >= playerLocation[0] - screenWidth / 2 and \
+                shieldCenter[0] <= playerLocation[0] + screenWidth / 2 and \
+                shieldCenter[1] >= playerLocation[1] - screenHeight / 2 and \
+                shieldCenter[1] <= playerLocation[1] + screenHeight / 2:
+            self.pointer.visible = False
+
+        # If the ship isn't on screen, the position and direction of the pointer will have to be computed
+        else:
+            
+            self.pointer.visible = True
 
 class Swarm:
     def __init__(self, size, shipTexture, shieldTexture, alienBatch, shipGroup, shieldGroup, x=0, y=0):

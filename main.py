@@ -14,17 +14,19 @@ gameWindow = pyglet.window.Window(800, 600, fullscreen=False)
 
 
 def loadResources():
-    global alienShipTexture, alienShieldTexture, playerShipTexture
+    global alienShipTexture, alienShieldTexture, playerShipTexture, pointerTexture
 
     # Set the locations to find resources
     pyglet.resource.path = ['resources']
     pyglet.resource.reindex()
 
     # Load the alien ship textures
-    alienShipTexture = pyglet.resource.image('images/alienShipBW.png')
-    alienShieldTexture = pyglet.resource.image('images/alienShieldBW.png')
+    alienShipTexture = pyglet.resource.image('images/alienShip.png')
+    alienShieldTexture = pyglet.resource.image('images/alienShield.png')
 
     playerShipTexture = pyglet.resource.image('images/playerShip.png')
+
+    pointerTexture = pyglet.resource.image('images/pointer.png')
 
     # Set the anchors for rotation
     alienShipTexture.anchor_x = alienShipTexture.width / 2
@@ -34,6 +36,9 @@ def loadResources():
     
     playerShipTexture.anchor_x = playerShipTexture.width / 2
     playerShipTexture.anchor_y = playerShipTexture.height / 2
+    
+    pointerTexture.anchor_x = pointerTexture.width / 2
+    pointerTexture.anchor_y = pointerTexture.height / 2
 
 def update(dt):
     global cameraOffset, rotationalSens, forwardAccel, reverseAccel, orthAccel
@@ -73,6 +78,7 @@ def update(dt):
     
     for i in swarm1:
         i.setCameraPosition(cameraOffset)
+        i.setPointerPosition(player.position, screenWidth, screenHeight)
 
 def centerCamera(location):
     """ This function centers the visible portion of the screen around
@@ -117,6 +123,7 @@ if __name__ == '__main__':
     alienShipTexture = None
     alienShieldTexture = None
     playerShipTexture = None
+    pointerTexture = None
     cachedTextures = {}
 
     # Make the windows fullscreen on the first screen found
@@ -148,6 +155,7 @@ if __name__ == '__main__':
 
     shipGroup = pyglet.graphics.OrderedGroup(10)
     shieldGroup = pyglet.graphics.OrderedGroup(20)
+    overlayGroup = pyglet.graphics.OrderedGroup(30)
 
 
     playerShipColored = Utils.colorTexture(playerShipTexture, (120, 120, 120), (40, 40, 200), (255, 128, 0))
@@ -165,10 +173,15 @@ if __name__ == '__main__':
         c0 = (randint(0, 255), randint(0, 255), randint(0, 255))
         c1 = (randint(0, 255), randint(0, 255), randint(0, 255))
         c2 = (randint(0, 255), randint(0, 255), randint(0, 255))
+        c4 = (128 + c0[0] / 2, 128 + c0[1] / 2, 128 + c0[2] / 2,)
 
         shipTex = Utils.colorTexture(alienShipTexture, c0, c1, c2)
         shieldTex = Utils.colorTexture(alienShieldTexture, c0, c1, c2)
-        swarm1.append(Alien(shipTex, shieldTex, alienBatch, shipGroup, shieldGroup, x=screenWidth / 2, y=screenHeight/2))
+        pointerTex = Utils.colorTexture(pointerTexture, c4, c1, c2)
+        swarm1.append(Alien(shipTex, shieldTex, pointerTex, alienBatch, shipGroup, shieldGroup, overlayGroup, x=screenWidth / 2, y=screenHeight/2))
+        swarm1[-1].pointer.position = (12, i * 16 + 12)
+        swarm1[-1].pointer.visible = True
+
     # Create the FPS monitor
     fpsDisplay = pyglet.window.FPSDisplay(window=gameWindow)
     
