@@ -38,11 +38,15 @@ def loadResources():
 def update(dt):
     global cameraOffset, rotationalSens, forwardAccel, reverseAccel, orthAccel
 
+
+
+    ###### Handle Player Input ######
+
     if keyboard[key.A]:
-        player.ship.rotation -= rotationalSens / dt
+        player.ship.rotation -= rotationalSens * dt
 
     if keyboard[key.D]:
-        player.ship.rotation += rotationalSens / dt
+        player.ship.rotation += rotationalSens * dt
 
     if keyboard[key.W]:
         player.setAcceleartion((forwardAccel * cos(player.ship.rotation * pi / 180), -forwardAccel * sin(player.ship.rotation * pi / 180)))
@@ -55,6 +59,10 @@ def update(dt):
     else:
         player.setAcceleartion((0,0))
 
+
+
+    ###### Update all sprites ######
+
     player.update(dt)
     for i in swarm1:
         i.update(dt)
@@ -65,8 +73,6 @@ def update(dt):
     
     for i in swarm1:
         i.setCameraPosition(cameraOffset)
-
-    pass
 
 def centerCamera(location):
     """ This function centers the visible portion of the screen around
@@ -147,7 +153,7 @@ if __name__ == '__main__':
     playerShipColored = Utils.colorTexture(playerShipTexture, (120, 120, 120), (40, 40, 200), (255, 128, 0))
     player = Player(playerShipColored, alienShieldTexture, alienBatch, shipGroup, shieldGroup, x=screenWidth / 2, y=screenHeight/2)
     player.velocity = np.array((100,0), dtype=np.float32)
-    rotationalSens = 0.05
+    rotationalSens = 200
     forwardAccel = 300
     reverseAccel = -200
     orthAccel = 150
