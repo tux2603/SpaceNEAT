@@ -55,8 +55,40 @@ class Alien:
 
         # If the ship isn't on screen, the position and direction of the pointer will have to be computed
         else:
-            
+
             self.pointer.visible = True
+
+            spacing = 10
+
+            # Much math will now begin. Essentially, we will draw line segments between the four 
+            #   corners of the display and another between the player and the alien ship, then find
+            #   their intersection through primitive raytracing. If there is an intersection in the
+            #   valid range, the pointer will be drawn there
+            x1, y1 = (0, 0)
+            dx1, dy1 = self.position - playerLocation
+
+            tlx, tly = (-screenWidth / 2 + spacing,  screenHeight / 2 - spacing)
+            brx, brY = ( screenWidth / 2 - spacing, -screenHeight / 2 + spacing)
+
+            self._setPointerAtIntercept(x1, y1, dx1, dy1, tlx, tly, screenWidth - spacing * 2, 0, screenWidth / 2, screenHeight / 2) or \
+                self._setPointerAtIntercept(x1, y1, dx1, dy1, brx, brY, -screenWidth + spacing * 2, 0, screenWidth / 2, screenHeight / 2) or \
+                self._setPointerAtIntercept(x1, y1, dx1, dy1, tlx, tly, 0, -screenHeight + spacing * 2, screenWidth / 2, screenHeight / 2) or \
+                self._setPointerAtIntercept(x1, y1, dx1, dy1, brx, brY, 0, screenHeight - spacing * 2, screenWidth / 2, screenHeight / 2)
+
+
+    def _setPointerAtIntercept(self, x1, y1, dx1, dy1, x2, y2, dx2, dy2, offsetX, offsetY):
+        denominator = dx1 * dy2 - dx2 * dy1
+
+        if denominator != 0:
+            intercept1 = (dy2 * (x2 - x1) - dx2 * (y2 - y1)) / denominator
+            intercept2 = (dy1 * (x2 - x1) - dx1 * (y2 - y1)) / denominator
+
+            if intercept1 >= 0 and intercept1 <= 1 and intercept2 >= 0 and intercept2 <= 1:
+                self.pointer.position = (x1 + dx1 * intercept1 + offsetX, y1 + dy1 * intercept1 + offsetY)
+                self.pointer.rotation = -atan2(dy1, dx1) * 180 / pi
+                return True
+
+        return False
 
 class Swarm:
     def __init__(self, size, shipTexture, shieldTexture, alienBatch, shipGroup, shieldGroup, x=0, y=0):
